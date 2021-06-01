@@ -1,0 +1,19 @@
+{
+    "name": "logmiller/testbench-app",
+    "description": "Testbench for CRUD application.",
+    "type": "project",
+    "require": {
+        "php": "^7.2"
+    },
+    "authors": [
+        {
+            "name": "Logan Miller",
+            "email": "logan.miller@example.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "CRUD\\": "src"
+        }
+    }
+}
