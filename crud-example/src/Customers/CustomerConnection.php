@@ -72,4 +72,33 @@ class CustomerConnection extends Database\Connection {
         }
     }
 
+    /**
+     * Request database connection to specific number of customers.
+     * @param int $limit The customer row limit.
+     * @param int $cid The customer identifier.
+     */
+    public function getListOfCustomers($limit = 10, $cid = 0) {
+        try {
+            $pdo = new CustomerConnection();
+            if($cid <= 0) {
+                $data = $pdo->prepare("SELECT CustomerList.*, CustomerNotes.Note FROM CustomerList
+                LEFT JOIN CustomerNotes ON CustomerList.CustomerID = CustomerNotes.CustomerID
+                ORDER BY CustomerList.CustomerID DESC
+                LIMIT :limit", ['limit' => $limit])->fetchAll();
+            } else {
+                $data = $pdo->prepare("SELECT CustomerList.*, CustomerNotes.Note FROM CustomerList
+                LEFT JOIN CustomerNotes ON CustomerList.CustomerID = CustomerNotes.CustomerID
+                WHERE CustomerList.CustomerID < :cid
+                ORDER BY CustomerList.CustomerID DESC
+                LIMIT :limit", ['cid' => $cid, 'limit' => $limit])->fetchAll();
+            }
+            foreach($data as $customer) {
+                $this->customers[] = new Customer($customer);  
+            }
+            return $this->customers;
+        } catch (\PDOException $e) {
+            throw new \PDOException($e->getMessage(), (int)$e->getCode());
+        }
+    }
+
 }

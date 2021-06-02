@@ -4,6 +4,8 @@ require __DIR__ . '/vendor/autoload.php';
 
 // Load Customer DB connector object.
 $customer = new CRUD\Customers\CustomerConnection();
+$page = isset($_GET['page']) ? $_GET['page'] : 1; 
+$cid = isset($_GET['cid']) ? $_GET['cid'] : 0;
 ?>
 <!DOCTYPE html>
     <head>
@@ -34,7 +36,7 @@ $customer = new CRUD\Customers\CustomerConnection();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($customer->getAllCustomers() as $customer): ?>
+                    <?php foreach ($customer->getListOfCustomers(3, $cid) as $i => $customer): ?>
                     <tr>
                         <td><?=$customer->getCustomerID();?></td>
                         <td><?=$customer->getCustomerFirstName();?></td>
@@ -54,6 +56,16 @@ $customer = new CRUD\Customers\CustomerConnection();
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            <div class="pagination">
+            <!-- Pagination: Previous Page -->  
+            <?php if ($page > 1): ?>
+                <a href="pageview.php?page=<?=$page-1?>&cid=<?=($cid + 3)?>"><i class="fas fa-angle-double-left fa-sm"></i><</a>
+            <?php endif; ?>
+            <!-- Pagination: Next Page --> 
+            <?php if ($i == 2): ?> 
+                <a href="pageview.php?page=<?=$page+1?>&cid=<?=$customer->getCustomerID()?>"><i class="fas fa-angle-double-right fa-sm"></i>></a>
+            <?php endif; ?>
+	        </div>
         </div>
     </body>
 </html>
