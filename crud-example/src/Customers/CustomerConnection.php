@@ -44,14 +44,57 @@ class CustomerConnection extends Database\Connection {
 
     /**
      * Request database connection to all customers.
+     * @param string $sort Sets sorted method of returned results.
      */
-    public function getAllCustomers() {
+    public function getAllCustomers($sort = 'ASC') {
         try {
+            // validate sorted method.
+            $sort = in_array($sort, array('ASC', 'DESC')) ? $sort : 'ASC';
+
             $pdo = new CustomerConnection();
             $data = $pdo->query("SELECT CustomerList.*, CustomerNotes.Note FROM CustomerList
-            LEFT JOIN CustomerNotes ON CustomerList.CustomerID = CustomerNotes.CustomerID")->fetchAll();
+            LEFT JOIN CustomerNotes ON CustomerList.CustomerID = CustomerNotes.CustomerID
+            ORDER BY CustomerID {$sort}")->fetchAll();
             foreach($data as $customer) {
                 $this->customers[] = new Customer($customer);  
+            }
+            return $this->customers;
+        } catch (\PDOException $e) {
+            throw new \PDOException($e->getMessage(), (int)$e->getCode());
+        }
+    }
+
+    /**
+     * Request database connection to all customers.
+     * @param string $column Sets the table column to be searched.
+     * @param string $search Search string.
+     * @param string $sort Sets sorted method of returned results.
+     */
+    public function filterCustomers($column = FALSE, $search = '', $sort = 'ASC') {
+        try {
+            // validate sorted method.
+            $sort = in_array($sort, array('ASC', 'DESC')) ? $sort : 'ASC';
+
+            // Apply search term filtering.
+            if(in_array($column, array('CustomerID', 'FirstName', 'LastName', 'Email', 'PhoneNumber', 'Address', 'City', 'State', 'Note'))) {
+                $pdo = new CustomerConnection();
+                if($column == 'Note') {
+                    $data = $pdo->query("SELECT CustomerList.*, CustomerNotes.Note FROM CustomerList
+                    LEFT JOIN CustomerNotes ON CustomerList.CustomerID = CustomerNotes.CustomerID
+                    WHERE CustomerNotes.{$column} LIKE '%{$search}%'
+                    ORDER BY CustomerID {$sort}")->fetchAll();
+                } else {
+                    $data = $pdo->query("SELECT CustomerList.*, CustomerNotes.Note FROM CustomerList
+                    LEFT JOIN CustomerNotes ON CustomerList.CustomerID = CustomerNotes.CustomerID
+                    WHERE CustomerList.{$column} LIKE '%{$search}%'
+                    ORDER BY CustomerID {$sort}")->fetchAll();
+                }
+                foreach($data as $customer) {
+                    $this->customers[] = new Customer($customer);  
+                }
+            }
+            else {
+                $this->customers[] = $this->getAllCustomers();
             }
             return $this->customers;
         } catch (\PDOException $e) {
