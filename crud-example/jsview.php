@@ -21,8 +21,20 @@ $customer = new CRUD\Customers\CustomerConnection();
             <a href="index.html" class="homepage">Go back to Homepage</a>
             <div class="form-group">
                 <!-- filter -->
-                <!-- toggle sort -->
                 <textarea id="txtsearch" rows="1" cols="25"></textarea>
+                <label for="filter-by">Filter by:</label>
+                <select id="filter-by">
+                    <option value="CustomerID">Customer ID</option>
+                    <option value="FirstName" selected>First Name</option>
+                    <option value="LastName">Last Name</option>
+                    <option value="Email">Email</option>
+                    <option value="PhoneNumber">Phone Number</option>
+                    <option value="Address">Address</option>
+                    <option value="City">City</option>
+                    <option value="State">State</option>
+                    <option value="Note">Note</option>
+                </select>
+                <!-- toggle sort -->
                 <span>Sort</span>
                 <label id="toggle-sort" class="toggle">
                     <input type="checkbox">
@@ -37,20 +49,34 @@ $customer = new CRUD\Customers\CustomerConnection();
                         type: 'post',
                         url: 'search.php',
                         data: {
-                            'columnName': 'FirstName', // TODO: Expand it to other filters
+                            'columnName': $('#filter-by').val(),
                             'searchTerm': String(SearchTerm()),
                             'sortOrder': 0
                         },
                         dataType: 'json',
                         success: RebuildGridview
                     });
-                    // toggle sort.
+                    // update table on a sort toggle.
                     $("input[type=checkbox]").click(function () {
                         $.ajax({
                             type: 'post',
                             url: 'search.php',
                             data: {
-                                'columnName': 'FirstName', // TODO: Expand it to other filters
+                                'columnName': $('#filter-by').val(),
+                                'searchTerm': String(SearchTerm()),
+                                'sortOrder': $("input[type=checkbox]").prop("checked") ? 1 : 0
+                            },
+                            dataType: 'json',
+                            success: RebuildGridview
+                        });
+                    });
+                    // update table when filter is updated.
+                    $('#filter-by').click(function () {
+                        $.ajax({
+                            type: 'post',
+                            url: 'search.php',
+                            data: {
+                                'columnName': $('#filter-by').val(),
                                 'searchTerm': String(SearchTerm()),
                                 'sortOrder': $("input[type=checkbox]").prop("checked") ? 1 : 0
                             },
@@ -62,18 +88,21 @@ $customer = new CRUD\Customers\CustomerConnection();
             </script>
  
             <script type="text/javascript">
+                // Update table grid on search term input update.
                 $("body").on("keyup","[id*=txtsearch]", function () {
                     GetCustomers();
                 });
+                // Returns the search term input.
                 function SearchTerm() {
                     return jQuery.trim($("[id*=txtsearch]").val());
                 };
+                // AJAX call to get current relevant customer data for the grid view.
                 function GetCustomers() {
                     $.ajax({
                         type: 'post',
                         url: 'search.php',
                         data: {
-                            'columnName': 'FirstName', // TODO: Expand it to other filters
+                            'columnName': $('#filter-by').val(),
                             'searchTerm': String(SearchTerm()),
                             'sortOrder': $("input[type=checkbox]").prop("checked") ? 1 : 0
                         },
@@ -81,6 +110,7 @@ $customer = new CRUD\Customers\CustomerConnection();
                         success: RebuildGridview
                     });
                 };
+                // Rebuilds customer grid view.
                 function RebuildGridview(customers) {
 
                     // Builds out the table header.
