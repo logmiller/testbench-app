@@ -46,7 +46,7 @@ class CustomerConnection extends Database\Connection {
      * Request database connection to all customers.
      * @param string $sort Sets sorted method of returned results.
      */
-    public function getAllCustomers($sort = 'ASC') {
+    public function getAllCustomers(string $sort = 'ASC') {
         try {
             // validate sorted method.
             $sort = in_array($sort, array('ASC', 'DESC')) ? $sort : 'ASC';
@@ -70,7 +70,7 @@ class CustomerConnection extends Database\Connection {
      * @param string $search Search string.
      * @param string $sort Sets sorted method of returned results.
      */
-    public function filterCustomers($column = FALSE, $search = '', $sort = 'ASC') {
+    public function filterCustomers(string $column = NULL, string $search = '', string $sort = 'ASC') {
         try {
             // validate sorted method.
             $sort = in_array($sort, array('ASC', 'DESC')) ? $sort : 'ASC';
@@ -120,7 +120,7 @@ class CustomerConnection extends Database\Connection {
      * @param int $limit The customer row limit.
      * @param int $cid The customer identifier.
      */
-    public function getListOfCustomers($limit = 10, $cid = 0) {
+    public function getListOfCustomers(int $limit = 10, int $cid = 0) {
         try {
             $pdo = new CustomerConnection();
             if($cid <= 0) {
